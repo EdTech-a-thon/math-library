@@ -104,8 +104,59 @@ function renderResults(summary) {
   $('#sorted-values').textContent = summary.sorted.map(formatNumber).join('  ·  ');
   $('#sorted-count').textContent = `${summary.sorted.length} values`;
   $('#plot-status').textContent = 'Your plot is ready';
+  $('#export-message').textContent = '';
   $('#empty-state').classList.add('hidden');
   $('#results').classList.remove('hidden');
+}
+
+function getPlotPng() {
+  const source = $('#box-plot');
+  const svg = source.cloneNode(true);
+  const width = source.viewBox.baseVal.width;
+  const height = source.viewBox.baseVal.height;
+  const svgMarkup = new XMLSerializer().serializeToString(svg);
+  const plotStyles = `
+    .axis { stroke: #71818a; stroke-width: 1.5; }
+    .tick line { stroke: #71818a; stroke-width: 1.5; }
+    .tick text { fill: #607078; font: 12px monospace; text-anchor: middle; }
+    .whisker, .cap { stroke: #173e5c; stroke-width: 3; }
+    .box { fill: #b9e5d0; stroke: #173e5c; stroke-width: 3; }
+    .median-line { stroke: #ec7449; stroke-width: 4; }
+    .plot-label text { fill: #173e5c; font-family: monospace; text-anchor: middle; }
+    .plot-label text:first-child { font-size: 10px; font-weight: 500; letter-spacing: .5px; }
+    .plot-label text:last-child { font-size: 13px; font-weight: 500; }
+    .label-median text { fill: #ba4e2f; }
+  `;
+  const svgBlob = new Blob([
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><style>${plotStyles}</style><rect width="100%" height="100%" fill="#fffefa" />${svgMarkup.replace(/^<svg[^>]*>|<\/svg>$/g, '')}</svg>`,
+  ], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(svgBlob);
+
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      const scale = 2;
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+      const context = canvas.getContext('2d');
+      context.fillStyle = '#fffefa';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.scale(scale, scale);
+      context.drawImage(image, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Could not create an image.'))), 'image/png');
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Could not create an image.'));
+    };
+    image.src = url;
+  });
+}
+
+function showExportMessage(message) {
+  $('#export-message').textContent = message;
 }
 
 function updateValueCount() {
@@ -155,4 +206,29 @@ $('#clear-button').addEventListener('click', () => {
   $('#empty-state').classList.remove('hidden');
   $('#plot-status').textContent = 'Add data to begin';
   $('#data-input').focus();
+});
+
+$('#download-button').addEventListener('click', async () => {
+  try {
+    const png = await getPlotPng();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(png);
+    link.download = 'box-plot.png';
+    link.click();
+    URL.revokeObjectURL(link.href);
+    showExportMessage('PNG downloaded.');
+  } catch {
+    showExportMessage('The PNG could not be created. Please try again.');
+  }
+});
+
+$('#copy-button').addEventListener('click', async () => {
+  try {
+    if (!navigator.clipboard || !window.ClipboardItem) throw new Error('Clipboard images are not supported.');
+    const png = await getPlotPng();
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]);
+    showExportMessage('PNG copied to your clipboard.');
+  } catch {
+    showExportMessage('Copying PNGs is not supported in this browser. Try Download PNG instead.');
+  }
 });
