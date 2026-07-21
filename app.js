@@ -3,9 +3,9 @@ const $ = (selector) => document.querySelector(selector);
 const exampleData = '4, 7, 8, 10, 12, 12, 15, 18, 21';
 const summaryLabels = [
   ['Minimum', 'min'],
-  ['First quartile', 'Q1'],
-  ['Median', 'Q2'],
-  ['Third quartile', 'Q3'],
+  ['First quartile', 'q1'],
+  ['Median', 'median'],
+  ['Third quartile', 'q3'],
   ['Maximum', 'max'],
 ];
 
