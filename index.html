@@ -3,65 +3,96 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A private, encouraging multiplication fact practice tool." />
-    <title>Rocket Math Practice</title>
+    <meta name="description" content="Create a box plot and five-number summary from a set of data." />
+    <title>Box Plot Builder</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <header class="brand-bar">
-        <a class="brand" href="./" aria-label="Rocket Math Practice home"><span class="brand-mark" aria-hidden="true">✦</span><span>Rocket Math <b>Practice</b></span></a>
-        <span class="privacy-note"><span aria-hidden="true">◉</span> Nothing is saved</span>
+    <main class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Box Plot Builder home"><span class="brand-mark" aria-hidden="true">▣</span> Box Plot Builder</a>
+        <p class="teacher-note"><span aria-hidden="true">✦</span> Made for math class</p>
       </header>
 
-      <section id="welcome-screen" class="screen welcome-screen" aria-labelledby="welcome-title">
-        <div class="orbit orbit-one" aria-hidden="true"></div><div class="orbit orbit-two" aria-hidden="true"></div>
-        <div class="welcome-copy">
-          <p class="eyebrow">MULTIPLICATION FACT FLUENCY</p>
-          <h1 id="welcome-title">Ready to make<br /><span>numbers fly?</span></h1>
-          <p class="intro">A quick, focused practice round for your Rocket Math routine. Give each fact your best shot.</p>
+      <section class="intro-section" aria-labelledby="page-title">
+        <div class="intro-copy">
+          <p class="eyebrow">DATA DISPLAY STUDIO</p>
+          <h1 id="page-title">Turn data into a <span>box plot.</span></h1>
+          <p>Paste a set of numbers, then see the five-number summary and a ready-to-discuss box plot.</p>
         </div>
-        <form id="setup-form" class="setup-card">
-          <label for="student-name">First, what should we call you?</label>
-          <input id="student-name" name="student-name" type="text" maxlength="30" autocomplete="off" placeholder="Type your first name" required />
-          <label for="fact-set">Which fact set are you practicing?</label>
-          <select id="fact-set" name="fact-set" required></select>
-          <p id="set-detail" class="set-detail"></p>
-          <button class="primary-button" type="submit">Start practice <span aria-hidden="true">→</span></button>
-        </form>
-        <p class="welcome-footer">Your name stays on this device and disappears when you refresh.</p>
-      </section>
-
-      <section id="practice-screen" class="screen practice-screen hidden" aria-live="polite">
-        <div class="practice-topbar">
-          <div><p class="eyebrow">PRACTICE ROUND</p><p id="student-label" class="student-label"></p></div>
-          <div class="round-status"><span id="question-count">1 / 36</span><div class="progress-track" aria-label="Practice progress"><div id="progress-fill" class="progress-fill"></div></div></div>
-        </div>
-        <div class="practice-layout">
-          <aside class="mission-card"><span class="mission-icon" aria-hidden="true">↗</span><p class="mission-title">Your mission</p><p>Say the fact, think it through, then type your answer.</p><p class="tiny-note">Type <kbd>done</kbd> whenever your teacher says to stop.</p></aside>
-          <div class="question-area">
-            <p id="feedback" class="feedback neutral">Take your time. You can do this.</p>
-            <div id="fact-card" class="fact-card"><span id="fact-display">3 × 4</span><span class="equals" aria-hidden="true">=</span><span class="answer-line" aria-hidden="true"></span></div>
-            <form id="answer-form" class="answer-form"><label class="sr-only" for="answer-input">Your answer</label><input id="answer-input" inputmode="numeric" autocomplete="off" placeholder="Your answer" /><button class="primary-button" type="submit">Check it</button></form>
-            <button id="debug-button" class="text-button" type="button">Teacher / debug view</button>
+        <aside class="method-note" aria-label="Quartile method used">
+          <span class="method-icon" aria-hidden="true">½</span>
+          <div>
+            <strong>Middle-of-halves method</strong>
+            <p>For an odd data set, the median is not included in either half.</p>
           </div>
-        </div>
+        </aside>
       </section>
 
-      <section id="complete-screen" class="screen complete-screen hidden" aria-labelledby="complete-title">
-        <div class="celebration" aria-hidden="true">★</div>
-        <p class="eyebrow">ROUND COMPLETE</p>
-        <h1 id="complete-title">Practice complete!</h1>
-        <p id="complete-message" class="intro"></p>
-        <div class="summary-card"><p class="summary-heading">Paste this into your class form</p><p id="session-summary" class="session-summary"></p><button id="copy-button" class="copy-button" type="button">Copy summary</button></div>
-        <a class="primary-button form-link" href="https://docs.google.com/forms/d/e/1FAIpQLSd20EKRP_cycd87L2XfaifKKuBlW-k4xr3AcqEyfKpJKQiKtg/viewform?usp=dialog" target="_blank" rel="noopener">Click this link <span aria-hidden="true">↗</span></a>
-        <button id="new-round-button" class="text-button" type="button">Start another round</button>
+      <section class="workspace" aria-label="Box plot builder">
+        <form id="data-form" class="data-card">
+          <div class="card-heading">
+            <div>
+              <p class="step-label">STEP 1</p>
+              <h2>Enter your data</h2>
+            </div>
+            <span id="value-count" class="value-count" aria-live="polite">0 values</span>
+          </div>
+          <label for="data-input">Numbers</label>
+          <textarea id="data-input" rows="8" spellcheck="false" placeholder="Example: 4, 7, 8, 10, 12, 12, 15, 18, 21" aria-describedby="input-help error-message"></textarea>
+          <p id="input-help" class="input-help">Separate values with commas, spaces, or new lines. Decimals and negative numbers are welcome.</p>
+          <p id="error-message" class="error-message" role="alert"></p>
+          <div class="form-actions">
+            <button class="button button-primary" type="submit">Make my box plot <span aria-hidden="true">→</span></button>
+            <button id="example-button" class="text-button" type="button">Use an example</button>
+            <button id="clear-button" class="text-button" type="button">Clear</button>
+          </div>
+        </form>
+
+        <section class="results-card" aria-labelledby="results-title">
+          <div class="card-heading results-heading">
+            <div>
+              <p class="step-label">STEP 2</p>
+              <h2 id="results-title">Read the plot</h2>
+            </div>
+            <p id="plot-status" class="plot-status" aria-live="polite">Add data to begin</p>
+          </div>
+
+          <div id="empty-state" class="empty-state">
+            <div class="empty-plot" aria-hidden="true"><span></span><i></i><b></b><i></i><span></span></div>
+            <p>Your box plot will appear here.</p>
+          </div>
+
+          <div id="results" class="results hidden">
+            <div class="plot-wrap">
+              <svg id="box-plot" viewBox="0 0 760 260" role="img" aria-labelledby="plot-title plot-description">
+                <title id="plot-title">Box plot</title>
+                <desc id="plot-description"></desc>
+              </svg>
+            </div>
+            <div class="summary-section">
+              <div class="summary-heading">
+                <h3>Five-number summary</h3>
+                <p>Read left to right</p>
+              </div>
+              <dl id="summary-grid" class="summary-grid"></dl>
+            </div>
+            <div class="sorted-data">
+              <div class="sorted-heading"><h3>Sorted data</h3><span id="sorted-count"></span></div>
+              <p id="sorted-values"></p>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="discussion-strip" aria-labelledby="talk-title">
+        <p class="discussion-kicker">TRY THIS WITH STUDENTS</p>
+        <h2 id="talk-title">What does the box tell us about the <em>middle half</em> of the data?</h2>
       </section>
     </main>
-    <dialog id="debug-dialog"><button id="close-debug" class="dialog-close" aria-label="Close debug view">×</button><p class="eyebrow">DEBUG VIEW</p><h2>New facts for Set <span id="debug-set"></span></h2><p>These facts are included four times each in this practice round.</p><ul id="debug-facts"></ul></dialog>
     <script type="module" src="app.js"></script>
   </body>
 </html>
