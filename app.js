@@ -1,234 +1,180 @@
 const $ = (selector) => document.querySelector(selector);
 
-const exampleData = '4, 7, 8, 10, 12, 12, 15, 18, 21';
-const summaryLabels = [
-  ['Minimum', 'min'],
-  ['First quartile', 'q1'],
-  ['Median', 'median'],
-  ['Third quartile', 'q3'],
-  ['Maximum', 'max'],
+const chapterDetails = [
+  ['The Torn Catalogue', 'STANDARD → VERTEX', '▤', 'The catalogue mends itself, its ink flowing back into a single unbroken line.', 'Restore its missing line.', 'A page lists a quadratic in standard form, but its vertex-form entry has faded away. Complete the catalogue to return it to its shelf.', 'The repaired page names the next chamber: the Astronomer’s Stack. A book of constellations shivers on a distant shelf.', 'Approach the Star Book'],
+  ['The Star Book', 'VERTEX → STANDARD', '✧', 'A constellation book opens by itself. Its gold stars join into a clean parabola.', 'Wake the sleeping constellations.', 'The star book only understands standard form. Translate its inscription so its constellations can return to their places.', 'The stars illuminate a collapsed ink-and-gold archway. Its stones rearrange themselves into a factored clue.', 'Cross to the Archway'],
+  ['The Ink Archway', 'FACTORED → STANDARD', '⌒', 'Dark ink becomes gold-veined stone. The archway now stands tall enough to pass beneath.', 'Rebuild the fallen arch.', 'Each stone bears one factor. Multiply the factors correctly and the archway will remember its original shape.', 'Beyond the arch, a stone librarian tilts its head. Its name has been carved as a hidden factored form.', 'Meet the Stone Librarian'],
+  ['The Stone Librarian', 'STANDARD → FACTORED', '♙', 'The stone librarian wakes, raising one hand toward a spiral stair.', 'Speak the statue’s true name.', 'The statue responds only to roots. Factor the inscription to discover the two values hidden in its stone base.', 'The librarian speaks one word: “Vertex.” A spiral stair turns toward the observatory, where an astrolabe is waiting.', 'Climb to the Observatory'],
+  ['The Brass Astrolabe', 'KEY FEATURES', '◉', 'The astrolabe turns. Its rings lock onto the parabola’s highest point.', 'Align the observatory instrument.', 'No graph remains, but the astrolabe can still find a parabola’s turning point. Identify the vertex and axis of symmetry from the equation.', 'The astrolabe projects two roots and a doorway of light. The final missing page lies within the Living Index.', 'Enter the Living Index'],
+  ['The Living Index', 'KEY FEATURES', '✦', 'The living index shines with a final line of gold ink. The exit arch stirs beyond it.', 'Write the final record.', 'The Library needs every landmark of this parabola before it can open the exit: the roots, the y-intercept, and the vertex. No graph will be drawn for you.', '', ''],
 ];
 
-function formatNumber(value) {
-  return Number.isInteger(value) ? String(value) : value.toLocaleString(undefined, { maximumFractionDigits: 4 });
+function pick(values) {
+  return values[Math.floor(Math.random() * values.length)];
 }
 
-function median(values) {
-  const middle = values.length / 2;
-  return values.length % 2 === 0 ? (values[middle - 1] + values[middle]) / 2 : values[Math.floor(middle)];
+function signed(value) {
+  return value < 0 ? ` - ${Math.abs(value)}` : ` + ${value}`;
 }
 
-function calculateSummary(values) {
-  const sorted = [...values].sort((a, b) => a - b);
-  const middle = Math.floor(sorted.length / 2);
-  const lowerHalf = sorted.slice(0, middle);
-  const upperHalf = sorted.slice(sorted.length % 2 === 0 ? middle : middle + 1);
-
-  return {
-    sorted,
-    min: sorted[0],
-    q1: median(lowerHalf),
-    median: median(sorted),
-    q3: median(upperHalf),
-    max: sorted[sorted.length - 1],
-  };
+function factor(root) {
+  const sign = root < 0 ? '+' : '-';
+  return `(x ${sign} ${Math.abs(root)})`;
 }
 
-function parseData(text) {
-  const entries = text.trim().split(/[\s,]+/).filter(Boolean);
-  if (!entries.length) return { error: 'Enter at least four numbers to make a box plot.' };
-
-  const values = entries.map(Number);
-  const invalidEntry = entries.find((entry, index) => !Number.isFinite(values[index]));
-  if (invalidEntry) return { error: `“${invalidEntry}” is not a number. Please check your data.` };
-  if (values.length < 4) return { error: 'Add at least four numbers so each half has a median.' };
-
-  return { values };
+function vertexEquation(h, k, html = true) {
+  const sign = h < 0 ? '+' : '-';
+  const squared = html ? '<sup>2</sup>' : '^2';
+  return `y = (x ${sign} ${Math.abs(h)})${squared}${signed(k)}`;
 }
 
-function makeTicks(min, max) {
-  const range = max - min;
-  if (range === 0) return [min - 1, min, min + 1];
-
-  const rawStep = range / 6;
-  const magnitude = 10 ** Math.floor(Math.log10(rawStep));
-  const normal = rawStep / magnitude;
-  const step = (normal <= 1 ? 1 : normal <= 2 ? 2 : normal <= 5 ? 5 : 10) * magnitude;
-  const start = Math.floor(min / step) * step;
-  const end = Math.ceil(max / step) * step;
-  const ticks = [];
-
-  for (let tick = start; tick <= end + step / 1000; tick += step) ticks.push(Number(tick.toFixed(10)));
-  return ticks;
+function standardEquation(b, c, html = true) {
+  const squared = html ? '<sup>2</sup>' : '^2';
+  return `y = x${squared}${b ? `${signed(b)}x` : ''}${c ? signed(c) : ''}`;
 }
 
-function renderPlot(summary) {
-  const svg = $('#box-plot');
-  const ticks = makeTicks(summary.min, summary.max);
-  const tickMin = ticks[0];
-  const tickMax = ticks[ticks.length - 1];
-  const left = 54;
-  const right = 706;
-  const axisY = 192;
-  const boxTop = 80;
-  const boxBottom = 150;
-  const middleY = (boxTop + boxBottom) / 2;
-  const x = (value) => left + ((value - tickMin) / (tickMax - tickMin)) * (right - left);
-  const valueLabel = (label, value, className) => `<g class="plot-label ${className}"><text x="${x(value)}" y="44">${label}</text><text x="${x(value)}" y="63">${formatNumber(value)}</text></g>`;
-  const tickMarkup = ticks.map((tick) => `<g class="tick"><line x1="${x(tick)}" y1="${axisY}" x2="${x(tick)}" y2="${axisY + 8}" /><text x="${x(tick)}" y="${axisY + 28}">${formatNumber(tick)}</text></g>`).join('');
-
-  svg.innerHTML = `
-    <title id="plot-title">Box plot for ${summary.sorted.length} values</title>
-    <desc id="plot-description">Minimum ${formatNumber(summary.min)}, first quartile ${formatNumber(summary.q1)}, median ${formatNumber(summary.median)}, third quartile ${formatNumber(summary.q3)}, maximum ${formatNumber(summary.max)}.</desc>
-    <line class="axis" x1="${left}" y1="${axisY}" x2="${right}" y2="${axisY}" />
-    ${tickMarkup}
-    <line class="whisker" x1="${x(summary.min)}" y1="${middleY}" x2="${x(summary.q1)}" y2="${middleY}" />
-    <line class="whisker" x1="${x(summary.q3)}" y1="${middleY}" x2="${x(summary.max)}" y2="${middleY}" />
-    <line class="cap" x1="${x(summary.min)}" y1="${boxTop + 14}" x2="${x(summary.min)}" y2="${boxBottom - 14}" />
-    <line class="cap" x1="${x(summary.max)}" y1="${boxTop + 14}" x2="${x(summary.max)}" y2="${boxBottom - 14}" />
-    <rect class="box" x="${x(summary.q1)}" y="${boxTop}" width="${Math.max(x(summary.q3) - x(summary.q1), 2)}" height="${boxBottom - boxTop}" />
-    <line class="median-line" x1="${x(summary.median)}" y1="${boxTop}" x2="${x(summary.median)}" y2="${boxBottom}" />
-    ${valueLabel('MIN', summary.min, 'label-min')}
-    ${valueLabel('Q1', summary.q1, 'label-q1')}
-    ${valueLabel('MEDIAN', summary.median, 'label-median')}
-    ${valueLabel('Q3', summary.q3, 'label-q3')}
-    ${valueLabel('MAX', summary.max, 'label-max')}
-  `;
+function plainEquation(equation) {
+  return equation.replace(/ /g, '').replace(/<sup>2<\/sup>/g, '^2');
 }
 
-function renderResults(summary) {
-  renderPlot(summary);
-  $('#summary-grid').innerHTML = summaryLabels.map(([label, key]) => `
-    <div><dt>${label}</dt><dd>${formatNumber(summary[key])}</dd></div>
-  `).join('');
-  $('#sorted-values').textContent = summary.sorted.map(formatNumber).join('  ·  ');
-  $('#sorted-count').textContent = `${summary.sorted.length} values`;
-  $('#plot-status').textContent = 'Your plot is ready';
-  $('#export-message').textContent = '';
-  $('#empty-state').classList.add('hidden');
-  $('#results').classList.remove('hidden');
+function randomVertex() {
+  return { h: pick([-4, -3, -2, -1, 1, 2, 3, 4]), k: pick([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]) };
 }
 
-function getPlotPng() {
-  const source = $('#box-plot');
-  const svg = source.cloneNode(true);
-  const width = source.viewBox.baseVal.width;
-  const height = source.viewBox.baseVal.height;
-  const svgMarkup = new XMLSerializer().serializeToString(svg);
-  const plotStyles = `
-    .axis { stroke: #71818a; stroke-width: 1.5; }
-    .tick line { stroke: #71818a; stroke-width: 1.5; }
-    .tick text { fill: #607078; font: 12px monospace; text-anchor: middle; }
-    .whisker, .cap { stroke: #173e5c; stroke-width: 3; }
-    .box { fill: #b9e5d0; stroke: #173e5c; stroke-width: 3; }
-    .median-line { stroke: #ec7449; stroke-width: 4; }
-    .plot-label text { fill: #173e5c; font-family: monospace; text-anchor: middle; }
-    .plot-label text:first-child { font-size: 10px; font-weight: 500; letter-spacing: .5px; }
-    .plot-label text:last-child { font-size: 13px; font-weight: 500; }
-    .label-median text { fill: #ba4e2f; }
-  `;
-  const svgBlob = new Blob([
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><style>${plotStyles}</style><rect width="100%" height="100%" fill="#fffefa" />${svgMarkup.replace(/^<svg[^>]*>|<\/svg>$/g, '')}</svg>`,
-  ], { type: 'image/svg+xml;charset=utf-8' });
-  const url = URL.createObjectURL(svgBlob);
-
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => {
-      const canvas = document.createElement('canvas');
-      const scale = 2;
-      canvas.width = width * scale;
-      canvas.height = height * scale;
-      const context = canvas.getContext('2d');
-      context.fillStyle = '#fffefa';
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      context.scale(scale, scale);
-      context.drawImage(image, 0, 0, width, height);
-      URL.revokeObjectURL(url);
-      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Could not create an image.'))), 'image/png');
-    };
-    image.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Could not create an image.'));
-    };
-    image.src = url;
-  });
+function randomRoots(sameParity = false) {
+  const values = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5];
+  const first = pick(values);
+  const options = values.filter((value) => value !== first && (!sameParity || Math.abs(value % 2) === Math.abs(first % 2)));
+  return [first, pick(options)].sort((a, b) => a - b);
 }
 
-function showExportMessage(message) {
-  $('#export-message').textContent = message;
+function chapter(index, question) {
+  const [name, badge, artifact, scene, title, story, reveal, next] = chapterDetails[index];
+  return { name, badge, artifact, scene, title, story, reveal, next, ...question };
 }
 
-function updateValueCount() {
-  const entries = $('#data-input').value.trim().split(/[\s,]+/).filter(Boolean);
-  $('#value-count').textContent = `${entries.length} value${entries.length === 1 ? '' : 's'}`;
+function createChallenges() {
+  const firstVertex = randomVertex();
+  const firstB = -2 * firstVertex.h;
+  const firstC = firstVertex.h ** 2 + firstVertex.k;
+  const secondVertex = randomVertex();
+  const [thirdRootA, thirdRootB] = randomRoots();
+  const [fourthRootA, fourthRootB] = randomRoots();
+  const astrolabeVertex = randomVertex();
+  const [finalRootA, finalRootB] = randomRoots(true);
+  const finalB = -(finalRootA + finalRootB);
+  const finalC = finalRootA * finalRootB;
+  const finalH = (finalRootA + finalRootB) / 2;
+  const finalK = -(((finalRootA - finalRootB) / 2) ** 2);
+  const correctFactors = `y = ${factor(fourthRootA)}${factor(fourthRootB)}`;
+  const distractors = [];
+
+  while (distractors.length < 3) {
+    const [rootA, rootB] = randomRoots();
+    const equation = `y = ${factor(rootA)}${factor(rootB)}`;
+    if (equation !== correctFactors && !distractors.includes(equation) && -(rootA + rootB) !== -(fourthRootA + fourthRootB)) distractors.push(equation);
+  }
+
+  const choices = [correctFactors, ...distractors].sort(() => Math.random() - .5);
+
+  return [
+    chapter(0, { type: 'input', prompt: `Convert <strong>${standardEquation(firstB, firstC)}</strong> to vertex form.`, label: 'Vertex form', placeholder: 'Example: y = (x - 2)^2 + 3', answer: [plainEquation(vertexEquation(firstVertex.h, firstVertex.k, false)).replace('y=', ''), plainEquation(vertexEquation(firstVertex.h, firstVertex.k, false))], hint: `Half of the x coefficient is ${-firstVertex.h}. Square that value, then complete the square.` }),
+    chapter(1, { type: 'input', prompt: `Convert <strong>${vertexEquation(secondVertex.h, secondVertex.k)}</strong> to standard form.`, label: 'Standard form', placeholder: 'Example: y = x^2 + 2x - 1', answer: [plainEquation(standardEquation(-2 * secondVertex.h, secondVertex.h ** 2 + secondVertex.k, false)).replace('y=', ''), plainEquation(standardEquation(-2 * secondVertex.h, secondVertex.h ** 2 + secondVertex.k, false))], hint: 'Expand the squared bracket first, then combine the constant terms.' }),
+    chapter(2, { type: 'input', prompt: `Convert <strong>y = ${factor(thirdRootA)}${factor(thirdRootB)}</strong> to standard form.`, label: 'Standard form', placeholder: 'Example: y = x^2 + 3x - 10', answer: [plainEquation(standardEquation(-(thirdRootA + thirdRootB), thirdRootA * thirdRootB, false)).replace('y=', ''), plainEquation(standardEquation(-(thirdRootA + thirdRootB), thirdRootA * thirdRootB, false))], hint: 'Use FOIL: multiply every term in the first bracket by every term in the second.' }),
+    chapter(3, { type: 'choice', prompt: `Which factored form is equivalent to <strong>${standardEquation(-(fourthRootA + fourthRootB), fourthRootA * fourthRootB)}</strong>?`, choices, correct: choices.indexOf(correctFactors), hint: `Find two integers with a product of ${fourthRootA * fourthRootB} and a sum of ${fourthRootA + fourthRootB}.` }),
+    chapter(4, { type: 'features', prompt: `For <strong>${vertexEquation(astrolabeVertex.h, astrolabeVertex.k)}</strong>, identify the key features.`, fields: [{ label: 'Vertex', placeholder: 'Example: (-2, 5)', answer: [`(${astrolabeVertex.h},${astrolabeVertex.k})`, `${astrolabeVertex.h},${astrolabeVertex.k}`] }, { label: 'Axis of symmetry', placeholder: 'Example: x = -2', answer: [`x=${astrolabeVertex.h}`, String(astrolabeVertex.h)] }], hint: 'Vertex form y = (x - h)² + k has vertex (h, k). Watch the sign inside the parentheses.' }),
+    chapter(5, { type: 'finalFeatures', prompt: `For <strong>${standardEquation(finalB, finalC)}</strong>, identify all key features.`, fields: [{ label: 'x-intercepts', placeholder: 'Example: (1, 0), (3, 0)', answer: [`(${finalRootA},0),(${finalRootB},0)`, `(${finalRootB},0),(${finalRootA},0)`, `${finalRootA},${finalRootB}`] }, { label: 'y-intercept', placeholder: 'Example: (0, 3)', answer: [`(0,${finalC})`, String(finalC)] }, { label: 'Vertex', placeholder: 'Example: (2, -1)', answer: [`(${finalH},${finalK})`, `${finalH},${finalK}`] }], hint: 'Factor to find the x-intercepts. For the y-intercept, set x = 0. The vertex lies midway between the roots.' }),
+  ];
 }
 
-function showError(message) {
-  $('#error-message').textContent = message;
-  $('#data-input').setAttribute('aria-invalid', 'true');
+let challenges = createChallenges();
+
+let current = 0;
+let attempts = 0;
+
+function normalize(value) {
+  return value.toLowerCase().replace(/\s+/g, '').replace(/[{}]/g, '').replace(/−/g, '-').replace(/\*+/g, '');
 }
 
-function clearError() {
-  $('#error-message').textContent = '';
-  $('#data-input').removeAttribute('aria-invalid');
+function renderChallenge() {
+  const challenge = challenges[current];
+  attempts = 0;
+  $('#room-label').textContent = `CHAPTER ${['I', 'II', 'III', 'IV', 'V', 'VI'][current]} OF VI`;
+  $('#challenge-kicker').textContent = challenge.name.toUpperCase();
+  $('#challenge-title').textContent = challenge.title;
+  $('#form-badge').textContent = challenge.badge;
+  $('#story-text').textContent = challenge.story;
+  $('#scene-artifact').textContent = challenge.artifact;
+  $('#scene-caption').textContent = current === 0 ? 'A damaged catalogue waits beneath a pool of moonlight.' : challenge.scene;
+  $('#feedback').textContent = '';
+  $('#hint-box').classList.add('hidden');
+  $('#hint-button').disabled = true;
+  $('#hint-box p').textContent = challenge.hint;
+  $('#check-button').disabled = false;
+  $('#reveal-card').classList.add('hidden');
+  $('#question-area').innerHTML = makeQuestion(challenge);
+  document.querySelectorAll('.artifact').forEach((artifact, index) => artifact.classList.toggle('active', index === current));
 }
 
-$('#data-input').addEventListener('input', () => {
-  updateValueCount();
-  clearError();
-});
+function makeQuestion(challenge) {
+  if (challenge.type === 'choice') {
+    return `<p class="math-prompt">${challenge.prompt}</p><fieldset class="choice-list"><legend>Choose one answer</legend>${challenge.choices.map((choice, index) => `<label class="choice"><input type="radio" name="answer" value="${index}" /><span>${choice}</span></label>`).join('')}</fieldset>`;
+  }
+  if (challenge.fields) {
+    return `<p class="math-prompt">${challenge.prompt}</p><div class="feature-fields">${challenge.fields.map((field, index) => `<label>${field.label}<input data-field="${index}" type="text" autocomplete="off" spellcheck="false" placeholder="${field.placeholder}" /></label>`).join('')}</div>`;
+  }
+  return `<p class="math-prompt">${challenge.prompt}</p><label class="answer-label">${challenge.label}<input id="answer-input" type="text" autocomplete="off" spellcheck="false" placeholder="${challenge.placeholder}" /></label>`;
+}
 
-$('#data-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  const parsed = parseData($('#data-input').value);
-  if (parsed.error) {
-    showError(parsed.error);
+function isCorrect(challenge) {
+  if (challenge.type === 'choice') return Number(document.querySelector('input[name="answer"]:checked')?.value) === challenge.correct;
+  if (challenge.fields) return challenge.fields.every((field, index) => field.answer.includes(normalize(document.querySelector(`[data-field="${index}"]`).value)));
+  return challenge.answer.includes(normalize($('#answer-input').value));
+}
+
+function checkAnswer() {
+  const challenge = challenges[current];
+  if (isCorrect(challenge)) {
+    $('#feedback').textContent = 'Correct. The library responds to your restoration.';
+    $('#feedback').className = 'feedback correct';
+    $('#check-button').disabled = true;
+    document.querySelectorAll('#question-area input').forEach((input) => input.disabled = true);
+    setTimeout(showReveal, 350);
     return;
   }
+  attempts += 1;
+  $('#feedback').textContent = attempts === 1 ? 'That is not quite the lost entry. Check each step and try again.' : 'Still not the right restoration. The Archivist can now offer a hint.';
+  $('#feedback').className = 'feedback incorrect';
+  if (attempts >= 2) $('#hint-button').disabled = false;
+}
 
-  clearError();
-  renderResults(calculateSummary(parsed.values));
-});
-
-$('#example-button').addEventListener('click', () => {
-  $('#data-input').value = exampleData;
-  updateValueCount();
-  clearError();
-  $('#data-form').requestSubmit();
-});
-
-$('#clear-button').addEventListener('click', () => {
-  $('#data-input').value = '';
-  updateValueCount();
-  clearError();
-  $('#results').classList.add('hidden');
-  $('#empty-state').classList.remove('hidden');
-  $('#plot-status').textContent = 'Add data to begin';
-  $('#data-input').focus();
-});
-
-$('#download-button').addEventListener('click', async () => {
-  try {
-    const png = await getPlotPng();
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(png);
-    link.download = 'box-plot.png';
-    link.click();
-    URL.revokeObjectURL(link.href);
-    showExportMessage('PNG downloaded.');
-  } catch {
-    showExportMessage('The PNG could not be created. Please try again.');
+function showReveal() {
+  const challenge = challenges[current];
+  if (current === challenges.length - 1) {
+    showComplete();
+    return;
   }
+  $('#reveal-title').textContent = `${challenge.name} restored.`;
+  $('#reveal-text').textContent = challenge.reveal;
+  $('#next-button').textContent = `${challenge.next} →`;
+  $('#reveal-card').classList.remove('hidden');
+  $('#reveal-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function showComplete() {
+  $('#game-screen').classList.add('hidden');
+  $('#complete-screen').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+$('#start-button').addEventListener('click', () => {
+  challenges = createChallenges();
+  $('#welcome-screen').classList.add('hidden');
+  $('#game-screen').classList.remove('hidden');
+  renderChallenge();
 });
 
-$('#copy-button').addEventListener('click', async () => {
-  try {
-    if (!navigator.clipboard || !window.ClipboardItem) throw new Error('Clipboard images are not supported.');
-    const png = await getPlotPng();
-    await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]);
-    showExportMessage('PNG copied to your clipboard.');
-  } catch {
-    showExportMessage('Copying PNGs is not supported in this browser. Try Download PNG instead.');
-  }
-});
+$('#check-button').addEventListener('click', checkAnswer);
+$('#hint-button').addEventListener('click', () => $('#hint-box').classList.remove('hidden'));
+$('#next-button').addEventListener('click', () => { current += 1; renderChallenge(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+$('#restart-button').addEventListener('click', () => { current = 0; $('#complete-screen').classList.add('hidden'); $('#welcome-screen').classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' }); });
