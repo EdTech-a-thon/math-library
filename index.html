@@ -3,65 +3,91 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A private, encouraging multiplication fact practice tool." />
-    <title>Rocket Math Practice</title>
+    <meta name="description" content="A quadratic forms revision escape room set in a ruined mathematician's library." />
+    <title>The Ruins of the Mathematician's Library</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <header class="brand-bar">
-        <a class="brand" href="./" aria-label="Rocket Math Practice home"><span class="brand-mark" aria-hidden="true">✦</span><span>Rocket Math <b>Practice</b></span></a>
-        <span class="privacy-note"><span aria-hidden="true">◉</span> Nothing is saved</span>
+    <main class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Restart The Ruins of the Mathematician's Library"><span class="brand-mark" aria-hidden="true">f(x)</span> The Library of Forms</a>
+        <p class="teacher-note">Quadratic Forms Revision</p>
       </header>
 
-      <section id="welcome-screen" class="screen welcome-screen" aria-labelledby="welcome-title">
-        <div class="orbit orbit-one" aria-hidden="true"></div><div class="orbit orbit-two" aria-hidden="true"></div>
-        <div class="welcome-copy">
-          <p class="eyebrow">MULTIPLICATION FACT FLUENCY</p>
-          <h1 id="welcome-title">Ready to make<br /><span>numbers fly?</span></h1>
-          <p class="intro">A quick, focused practice round for your Rocket Math routine. Give each fact your best shot.</p>
+      <section id="welcome-screen" class="welcome-screen" aria-labelledby="page-title">
+        <div class="moon" aria-hidden="true"></div>
+        <p class="eyebrow">AN INDIVIDUAL MATHEMATICAL ESCAPE</p>
+        <h1 id="page-title">The ruins of the<br /><em>Mathematician's Library</em></h1>
+        <p class="welcome-copy">Six pages from the Library of Forms have scattered into its ruined halls. Restore them by moving fluently between quadratic forms, and the archivist will show you the way out.</p>
+        <div class="mission-card">
+          <span class="quill" aria-hidden="true">✦</span>
+          <div><strong>Your mission</strong><p>Repair the living catalogue before the last candle burns out.</p></div>
         </div>
-        <form id="setup-form" class="setup-card">
-          <label for="student-name">First, what should we call you?</label>
-          <input id="student-name" name="student-name" type="text" maxlength="30" autocomplete="off" placeholder="Type your first name" required />
-          <label for="fact-set">Which fact set are you practicing?</label>
-          <select id="fact-set" name="fact-set" required></select>
-          <p id="set-detail" class="set-detail"></p>
-          <button class="primary-button" type="submit">Start practice <span aria-hidden="true">→</span></button>
-        </form>
-        <p class="welcome-footer">Your name stays on this device and disappears when you refresh.</p>
+        <button id="start-button" class="button button-primary" type="button">Enter the ruins <span aria-hidden="true">→</span></button>
+        <p class="quiet-note">No score. Take your time. The Archivist can help after two attempts.</p>
       </section>
 
-      <section id="practice-screen" class="screen practice-screen hidden" aria-live="polite">
-        <div class="practice-topbar">
-          <div><p class="eyebrow">PRACTICE ROUND</p><p id="student-label" class="student-label"></p></div>
-          <div class="round-status"><span id="question-count">1 / 36</span><div class="progress-track" aria-label="Practice progress"><div id="progress-fill" class="progress-fill"></div></div></div>
+      <section id="game-screen" class="game-screen hidden" aria-live="polite">
+        <div class="game-topline">
+          <div><p class="eyebrow">THE LIVING CATALOGUE</p><p id="room-label" class="room-label">CHAPTER I OF VI</p></div>
+          <div class="candle" aria-label="The library candle is lit"><span aria-hidden="true"></span> Candlelit</div>
         </div>
-        <div class="practice-layout">
-          <aside class="mission-card"><span class="mission-icon" aria-hidden="true">↗</span><p class="mission-title">Your mission</p><p>Say the fact, think it through, then type your answer.</p><p class="tiny-note">Type <kbd>done</kbd> whenever your teacher says to stop.</p></aside>
-          <div class="question-area">
-            <p id="feedback" class="feedback neutral">Take your time. You can do this.</p>
-            <div id="fact-card" class="fact-card"><span id="fact-display">3 × 4</span><span class="equals" aria-hidden="true">=</span><span class="answer-line" aria-hidden="true"></span></div>
-            <form id="answer-form" class="answer-form"><label class="sr-only" for="answer-input">Your answer</label><input id="answer-input" inputmode="numeric" autocomplete="off" placeholder="Your answer" /><button class="primary-button" type="submit">Check it</button></form>
-            <button id="debug-button" class="text-button" type="button">Teacher / debug view</button>
+
+        <nav class="artifact-trail" aria-label="Restored library artifacts">
+          <span class="artifact active" data-artifact="0"><b>01</b><i aria-hidden="true">▤</i><small>Catalogue</small></span>
+          <span class="trail-line"></span>
+          <span class="artifact" data-artifact="1"><b>02</b><i aria-hidden="true">✧</i><small>Star Book</small></span>
+          <span class="trail-line"></span>
+          <span class="artifact" data-artifact="2"><b>03</b><i aria-hidden="true">⌒</i><small>Archway</small></span>
+          <span class="trail-line"></span>
+          <span class="artifact" data-artifact="3"><b>04</b><i aria-hidden="true">♙</i><small>Statue</small></span>
+          <span class="trail-line"></span>
+          <span class="artifact" data-artifact="4"><b>05</b><i aria-hidden="true">◉</i><small>Astrolabe</small></span>
+          <span class="trail-line"></span>
+          <span class="artifact" data-artifact="5"><b>06</b><i aria-hidden="true">✦</i><small>Index</small></span>
+        </nav>
+
+        <section class="library-scene" aria-label="Library restoration scene">
+          <div class="scene-glow"></div>
+          <div class="shelf shelf-left" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="scene-artifact" id="scene-artifact" aria-hidden="true">▤</div>
+          <div class="shelf shelf-right" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+          <p id="scene-caption" class="scene-caption">A damaged catalogue waits beneath a pool of moonlight.</p>
+        </section>
+
+        <section class="challenge-card" aria-labelledby="challenge-title">
+          <div class="challenge-heading"><div><p id="challenge-kicker" class="eyebrow">THE TORN CATALOGUE</p><h2 id="challenge-title">Restore its missing line.</h2></div><span id="form-badge" class="form-badge">STANDARD → VERTEX</span></div>
+          <p id="story-text" class="story-text"></p>
+          <div id="question-area" class="question-area"></div>
+          <p id="feedback" class="feedback" role="alert"></p>
+          <div class="challenge-actions">
+            <button id="check-button" class="button button-primary" type="button">Check restoration <span aria-hidden="true">→</span></button>
+            <button id="hint-button" class="button hint-button" type="button" disabled>Ask the Archivist</button>
           </div>
-        </div>
+          <aside id="hint-box" class="hint-box hidden"><strong>The Archivist whispers</strong><p></p></aside>
+        </section>
+
+        <section id="reveal-card" class="reveal-card hidden" aria-labelledby="reveal-title">
+          <p class="eyebrow">RESTORATION COMPLETE</p>
+          <h2 id="reveal-title">The page remembers.</h2>
+          <p id="reveal-text"></p>
+          <button id="next-button" class="button button-light" type="button">Follow the new path <span aria-hidden="true">→</span></button>
+        </section>
       </section>
 
-      <section id="complete-screen" class="screen complete-screen hidden" aria-labelledby="complete-title">
-        <div class="celebration" aria-hidden="true">★</div>
-        <p class="eyebrow">ROUND COMPLETE</p>
-        <h1 id="complete-title">Practice complete!</h1>
-        <p id="complete-message" class="intro"></p>
-        <div class="summary-card"><p class="summary-heading">Paste this into your class form</p><p id="session-summary" class="session-summary"></p><button id="copy-button" class="copy-button" type="button">Copy summary</button></div>
-        <a class="primary-button form-link" href="https://docs.google.com/forms/d/e/1FAIpQLSd20EKRP_cycd87L2XfaifKKuBlW-k4xr3AcqEyfKpJKQiKtg/viewform?usp=dialog" target="_blank" rel="noopener">Click this link <span aria-hidden="true">↗</span></a>
-        <button id="new-round-button" class="text-button" type="button">Start another round</button>
+      <section id="complete-screen" class="complete-screen hidden" aria-labelledby="complete-title">
+        <div class="completion-star" aria-hidden="true">✦</div>
+        <p class="eyebrow">THE FINAL PAGE IS RESTORED</p>
+        <h1 id="complete-title">You escaped the<br /><em>Library of Forms.</em></h1>
+        <p>The ruined shelves settle. The Archivist returns every parabola to its place, and an archway opens into morning light.</p>
+        <div class="phrase-card"><span>SHOW YOUR TEACHER</span><strong>THE CURVE REMEMBERS</strong></div>
+        <p class="completion-note">You restored all six pages of the living catalogue.</p>
+        <button id="restart-button" class="button button-light" type="button">Explore again</button>
       </section>
     </main>
-    <dialog id="debug-dialog"><button id="close-debug" class="dialog-close" aria-label="Close debug view">×</button><p class="eyebrow">DEBUG VIEW</p><h2>New facts for Set <span id="debug-set"></span></h2><p>These facts are included four times each in this practice round.</p><ul id="debug-facts"></ul></dialog>
     <script type="module" src="app.js"></script>
   </body>
 </html>

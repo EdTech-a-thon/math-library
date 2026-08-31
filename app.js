@@ -1,74 +1,180 @@
-const sets = [
-  ['A','1×1, 2×1, 1×2, 3×1, 1×3, 4×1, 5×1, 1×6, 6×1, 1×7, 7×1, 1×8, 8×1, 1×9, 9×1'], ['B','2×2, 2×3, 3×2'], ['C','2×4, 4×2, 2×5, 5×2'], ['D','2×6, 6×2, 2×7, 7×2'], ['E','2×8, 8×2, 2×9, 9×2'], ['F','3×3, 3×4, 4×3'], ['G','3×5, 5×3, 3×9, 9×3'], ['H','3×6, 6×3, 4×9, 9×4'], ['I','3×7, 7×3, 5×9, 9×5'], ['J','3×8, 8×3, 6×9, 9×6'], ['K','0×1, 1×0, 0×2, 2×0, 0×5, 5×0, 0×6, 6×0, 0×7, 7×0, 0×8, 8×0'], ['L','7×9, 9×7'], ['M','4×4, 4×5, 5×4'], ['N','8×9, 9×8'], ['O','4×6, 6×4, 4×7, 7×4'], ['P','5×5, 4×8, 8×4'], ['Q','5×6, 6×5, 5×7, 7×5'], ['R','6×6, 5×8, 8×5'], ['S','6×7, 7×6'], ['T','7×7, 6×8, 8×6'], ['U','7×8, 8×7'], ['V','8×8, 9×9'], ['AA','10×1, 1×10, 10×10'], ['BB','10×2, 2×10, 10×5, 5×10'], ['CC','10×3, 3×10, 10×9, 9×10'], ['DD','10×4, 4×10, 10×6, 6×10'], ['EE','10×7, 7×10, 10×8, 8×10'], ['FF','10×11, 11×10, 10×12, 12×10'], ['GG','11×1, 1×11, 11×2, 2×11'], ['HH','11×3, 3×11, 11×5, 5×11'], ['II','11×11, 11×4, 4×11'], ['JJ','11×7, 7×11, 11×6, 6×11'], ['KK','11×8, 8×11, 11×9, 9×11'], ['LL','12×1, 1×12, 11×12, 12×11'], ['MM','12×12'], ['NN','12×5, 5×12, 9×12, 12×9'], ['OO','12×2, 2×12'], ['PP','12×6, 6×12, 12×8, 8×12'], ['QQ','12×4, 4×12, 12×3, 3×12'], ['RR','12×7, 7×12']
-].map(([name, facts]) => ({ name, facts: facts.split(', ') }));
-
 const $ = (selector) => document.querySelector(selector);
-const shuffle = (items) => [...items].sort(() => Math.random() - 0.5);
-const greetings = ['Let’s get those facts moving!', 'Your number brain is ready!', 'Time for a bright math boost!', 'Ready, steady, multiply!', 'Let’s launch a great practice round!'];
-const praise = ['Correct!','Great job!','Nice thinking!','You got it!','Excellent work!'];
-const endings = ['Nice work showing up and practicing!', 'That was focused work. Keep it up!', 'Your practice makes a difference!', 'You gave your brain a great workout!'];
-const numberWords = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
-let state = {};
 
-const setSelect = $('#fact-set');
-sets.forEach((set, index) => { const option = new Option(`Set ${set.name}`, index); setSelect.add(option); });
-function updateSetDetail() { const set = sets[setSelect.value]; $('#set-detail').textContent = `${set.facts.length} new fact${set.facts.length === 1 ? '' : 's'} in this set`; }
-setSelect.addEventListener('change', updateSetDetail); updateSetDetail();
+const chapterDetails = [
+  ['The Torn Catalogue', 'STANDARD → VERTEX', '▤', 'The catalogue mends itself, its ink flowing back into a single unbroken line.', 'Restore its missing line.', 'A page lists a quadratic in standard form, but its vertex-form entry has faded away. Complete the catalogue to return it to its shelf.', 'The repaired page names the next chamber: the Astronomer’s Stack. A book of constellations shivers on a distant shelf.', 'Approach the Star Book'],
+  ['The Star Book', 'VERTEX → STANDARD', '✧', 'A constellation book opens by itself. Its gold stars join into a clean parabola.', 'Wake the sleeping constellations.', 'The star book only understands standard form. Translate its inscription so its constellations can return to their places.', 'The stars illuminate a collapsed ink-and-gold archway. Its stones rearrange themselves into a factored clue.', 'Cross to the Archway'],
+  ['The Ink Archway', 'FACTORED → STANDARD', '⌒', 'Dark ink becomes gold-veined stone. The archway now stands tall enough to pass beneath.', 'Rebuild the fallen arch.', 'Each stone bears one factor. Multiply the factors correctly and the archway will remember its original shape.', 'Beyond the arch, a stone librarian tilts its head. Its name has been carved as a hidden factored form.', 'Meet the Stone Librarian'],
+  ['The Stone Librarian', 'STANDARD → FACTORED', '♙', 'The stone librarian wakes, raising one hand toward a spiral stair.', 'Speak the statue’s true name.', 'The statue responds only to roots. Factor the inscription to discover the two values hidden in its stone base.', 'The librarian speaks one word: “Vertex.” A spiral stair turns toward the observatory, where an astrolabe is waiting.', 'Climb to the Observatory'],
+  ['The Brass Astrolabe', 'KEY FEATURES', '◉', 'The astrolabe turns. Its rings lock onto the parabola’s highest point.', 'Align the observatory instrument.', 'No graph remains, but the astrolabe can still find a parabola’s turning point. Identify the vertex and axis of symmetry from the equation.', 'The astrolabe projects two roots and a doorway of light. The final missing page lies within the Living Index.', 'Enter the Living Index'],
+  ['The Living Index', 'KEY FEATURES', '✦', 'The living index shines with a final line of gold ink. The exit arch stirs beyond it.', 'Write the final record.', 'The Library needs every landmark of this parabola before it can open the exit: the roots, the y-intercept, and the vertex. No graph will be drawn for you.', '', ''],
+];
 
-function parseFact(fact) { return fact.split('×').map(Number); }
-function factWords(fact) { const [a,b] = parseFact(fact); const answer = a * b; const written = answer <= 20 ? numberWords[answer] : String(answer); return `${numberWords[a][0].toUpperCase() + numberWords[a].slice(1)} times ${numberWords[b]} is ${written}.`; }
-function buildRound(setIndex) {
-  const current = sets[setIndex].facts.slice(0, 4);
-  const review = sets.slice(0, setIndex).flatMap(set => set.facts);
-  const repeatedNew = Array.from({length: 4}, () => current).flat();
-  const neededReview = Math.max(0, 36 - repeatedNew.length);
-  const reviewPool = review.length ? review : sets[0].facts.filter(fact => !current.includes(fact));
-  const selectedReview = shuffle(reviewPool).slice(0, neededReview);
-  while (selectedReview.length < neededReview) selectedReview.push(...shuffle(reviewPool));
-  selectedReview.length = neededReview;
-  return shuffle([...repeatedNew, ...selectedReview]);
-}
-function showScreen(id) { document.querySelectorAll('.screen').forEach(screen => screen.classList.add('hidden')); $(id).classList.remove('hidden'); }
-function showQuestion() {
-  if (state.position >= state.round.length) return completeRound();
-  const fact = state.round[state.position];
-  $('#fact-display').textContent = fact.replace('×', ' × ');
-  $('#question-count').textContent = `${state.position + 1} / ${state.round.length}`;
-  $('#progress-fill').style.width = `${(state.position / state.round.length) * 100}%`;
-  $('#answer-input').value = ''; $('#answer-input').focus();
+function pick(values) {
+  return values[Math.floor(Math.random() * values.length)];
 }
 
-$('#setup-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  const name = $('#student-name').value.trim(); if (!name) return;
-  state = { name, setIndex: Number(setSelect.value), position: 0, round: buildRound(Number(setSelect.value)) };
-  $('#student-label').textContent = `${greetings[Math.floor(Math.random() * greetings.length)]} Hi, ${name}!`;
-  $('#feedback').textContent = 'Take your time. You can do this.'; $('#feedback').className = 'feedback neutral';
-  showScreen('#practice-screen'); showQuestion();
-});
+function signed(value) {
+  return value < 0 ? ` - ${Math.abs(value)}` : ` + ${value}`;
+}
 
-$('#answer-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  const input = $('#answer-input'); const response = input.value.trim().toLowerCase();
-  if (response === 'done') return completeRound();
-  if (!/^\d+$/.test(response)) { $('#feedback').textContent = 'Type a number, or type “done” to finish.'; $('#feedback').className = 'feedback incorrect'; return; }
-  const fact = state.round[state.position]; const [a,b] = parseFact(fact);
-  if (Number(response) === a * b) {
-    $('#feedback').textContent = praise[Math.floor(Math.random() * praise.length)]; $('#feedback').className = 'feedback correct'; state.position += 1;
-    setTimeout(showQuestion, 550);
-  } else {
-    $('#feedback').textContent = `${factWords(fact)} Say it to yourself three times, then try again.`; $('#feedback').className = 'feedback incorrect';
-    state.position = Math.max(0, state.position - 3); setTimeout(showQuestion, 2300);
+function factor(root) {
+  const sign = root < 0 ? '+' : '-';
+  return `(x ${sign} ${Math.abs(root)})`;
+}
+
+function vertexEquation(h, k, html = true) {
+  const sign = h < 0 ? '+' : '-';
+  const squared = html ? '<sup>2</sup>' : '^2';
+  return `y = (x ${sign} ${Math.abs(h)})${squared}${signed(k)}`;
+}
+
+function standardEquation(b, c, html = true) {
+  const squared = html ? '<sup>2</sup>' : '^2';
+  return `y = x${squared}${b ? `${signed(b)}x` : ''}${c ? signed(c) : ''}`;
+}
+
+function plainEquation(equation) {
+  return equation.replace(/ /g, '').replace(/<sup>2<\/sup>/g, '^2');
+}
+
+function randomVertex() {
+  return { h: pick([-4, -3, -2, -1, 1, 2, 3, 4]), k: pick([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]) };
+}
+
+function randomRoots(sameParity = false) {
+  const values = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5];
+  const first = pick(values);
+  const options = values.filter((value) => value !== first && (!sameParity || Math.abs(value % 2) === Math.abs(first % 2)));
+  return [first, pick(options)].sort((a, b) => a - b);
+}
+
+function chapter(index, question) {
+  const [name, badge, artifact, scene, title, story, reveal, next] = chapterDetails[index];
+  return { name, badge, artifact, scene, title, story, reveal, next, ...question };
+}
+
+function createChallenges() {
+  const firstVertex = randomVertex();
+  const firstB = -2 * firstVertex.h;
+  const firstC = firstVertex.h ** 2 + firstVertex.k;
+  const secondVertex = randomVertex();
+  const [thirdRootA, thirdRootB] = randomRoots();
+  const [fourthRootA, fourthRootB] = randomRoots();
+  const astrolabeVertex = randomVertex();
+  const [finalRootA, finalRootB] = randomRoots(true);
+  const finalB = -(finalRootA + finalRootB);
+  const finalC = finalRootA * finalRootB;
+  const finalH = (finalRootA + finalRootB) / 2;
+  const finalK = -(((finalRootA - finalRootB) / 2) ** 2);
+  const correctFactors = `y = ${factor(fourthRootA)}${factor(fourthRootB)}`;
+  const distractors = [];
+
+  while (distractors.length < 3) {
+    const [rootA, rootB] = randomRoots();
+    const equation = `y = ${factor(rootA)}${factor(rootB)}`;
+    if (equation !== correctFactors && !distractors.includes(equation) && -(rootA + rootB) !== -(fourthRootA + fourthRootB)) distractors.push(equation);
   }
+
+  const choices = [correctFactors, ...distractors].sort(() => Math.random() - .5);
+
+  return [
+    chapter(0, { type: 'input', prompt: `Convert <strong>${standardEquation(firstB, firstC)}</strong> to vertex form.`, label: 'Vertex form', placeholder: 'Example: y = (x - 2)^2 + 3', answer: [plainEquation(vertexEquation(firstVertex.h, firstVertex.k, false)).replace('y=', ''), plainEquation(vertexEquation(firstVertex.h, firstVertex.k, false))], hint: `Half of the x coefficient is ${-firstVertex.h}. Square that value, then complete the square.` }),
+    chapter(1, { type: 'input', prompt: `Convert <strong>${vertexEquation(secondVertex.h, secondVertex.k)}</strong> to standard form.`, label: 'Standard form', placeholder: 'Example: y = x^2 + 2x - 1', answer: [plainEquation(standardEquation(-2 * secondVertex.h, secondVertex.h ** 2 + secondVertex.k, false)).replace('y=', ''), plainEquation(standardEquation(-2 * secondVertex.h, secondVertex.h ** 2 + secondVertex.k, false))], hint: 'Expand the squared bracket first, then combine the constant terms.' }),
+    chapter(2, { type: 'input', prompt: `Convert <strong>y = ${factor(thirdRootA)}${factor(thirdRootB)}</strong> to standard form.`, label: 'Standard form', placeholder: 'Example: y = x^2 + 3x - 10', answer: [plainEquation(standardEquation(-(thirdRootA + thirdRootB), thirdRootA * thirdRootB, false)).replace('y=', ''), plainEquation(standardEquation(-(thirdRootA + thirdRootB), thirdRootA * thirdRootB, false))], hint: 'Use FOIL: multiply every term in the first bracket by every term in the second.' }),
+    chapter(3, { type: 'choice', prompt: `Which factored form is equivalent to <strong>${standardEquation(-(fourthRootA + fourthRootB), fourthRootA * fourthRootB)}</strong>?`, choices, correct: choices.indexOf(correctFactors), hint: `Find two integers with a product of ${fourthRootA * fourthRootB} and a sum of ${fourthRootA + fourthRootB}.` }),
+    chapter(4, { type: 'features', prompt: `For <strong>${vertexEquation(astrolabeVertex.h, astrolabeVertex.k)}</strong>, identify the key features.`, fields: [{ label: 'Vertex', placeholder: 'Example: (-2, 5)', answer: [`(${astrolabeVertex.h},${astrolabeVertex.k})`, `${astrolabeVertex.h},${astrolabeVertex.k}`] }, { label: 'Axis of symmetry', placeholder: 'Example: x = -2', answer: [`x=${astrolabeVertex.h}`, String(astrolabeVertex.h)] }], hint: 'Vertex form y = (x - h)² + k has vertex (h, k). Watch the sign inside the parentheses.' }),
+    chapter(5, { type: 'finalFeatures', prompt: `For <strong>${standardEquation(finalB, finalC)}</strong>, identify all key features.`, fields: [{ label: 'x-intercepts', placeholder: 'Example: (1, 0), (3, 0)', answer: [`(${finalRootA},0),(${finalRootB},0)`, `(${finalRootB},0),(${finalRootA},0)`, `${finalRootA},${finalRootB}`] }, { label: 'y-intercept', placeholder: 'Example: (0, 3)', answer: [`(0,${finalC})`, String(finalC)] }, { label: 'Vertex', placeholder: 'Example: (2, -1)', answer: [`(${finalH},${finalK})`, `${finalH},${finalK}`] }], hint: 'Factor to find the x-intercepts. For the y-intercept, set x = 0. The vertex lies midway between the roots.' }),
+  ];
+}
+
+let challenges = createChallenges();
+
+let current = 0;
+let attempts = 0;
+
+function normalize(value) {
+  return value.toLowerCase().replace(/\s+/g, '').replace(/[{}]/g, '').replace(/−/g, '-').replace(/\*+/g, '');
+}
+
+function renderChallenge() {
+  const challenge = challenges[current];
+  attempts = 0;
+  $('#room-label').textContent = `CHAPTER ${['I', 'II', 'III', 'IV', 'V', 'VI'][current]} OF VI`;
+  $('#challenge-kicker').textContent = challenge.name.toUpperCase();
+  $('#challenge-title').textContent = challenge.title;
+  $('#form-badge').textContent = challenge.badge;
+  $('#story-text').textContent = challenge.story;
+  $('#scene-artifact').textContent = challenge.artifact;
+  $('#scene-caption').textContent = current === 0 ? 'A damaged catalogue waits beneath a pool of moonlight.' : challenge.scene;
+  $('#feedback').textContent = '';
+  $('#hint-box').classList.add('hidden');
+  $('#hint-button').disabled = true;
+  $('#hint-box p').textContent = challenge.hint;
+  $('#check-button').disabled = false;
+  $('#reveal-card').classList.add('hidden');
+  $('#question-area').innerHTML = makeQuestion(challenge);
+  document.querySelectorAll('.artifact').forEach((artifact, index) => artifact.classList.toggle('active', index === current));
+}
+
+function makeQuestion(challenge) {
+  if (challenge.type === 'choice') {
+    return `<p class="math-prompt">${challenge.prompt}</p><fieldset class="choice-list"><legend>Choose one answer</legend>${challenge.choices.map((choice, index) => `<label class="choice"><input type="radio" name="answer" value="${index}" /><span>${choice}</span></label>`).join('')}</fieldset>`;
+  }
+  if (challenge.fields) {
+    return `<p class="math-prompt">${challenge.prompt}</p><div class="feature-fields">${challenge.fields.map((field, index) => `<label>${field.label}<input data-field="${index}" type="text" autocomplete="off" spellcheck="false" placeholder="${field.placeholder}" /></label>`).join('')}</div>`;
+  }
+  return `<p class="math-prompt">${challenge.prompt}</p><label class="answer-label">${challenge.label}<input id="answer-input" type="text" autocomplete="off" spellcheck="false" placeholder="${challenge.placeholder}" /></label>`;
+}
+
+function isCorrect(challenge) {
+  if (challenge.type === 'choice') return Number(document.querySelector('input[name="answer"]:checked')?.value) === challenge.correct;
+  if (challenge.fields) return challenge.fields.every((field, index) => field.answer.includes(normalize(document.querySelector(`[data-field="${index}"]`).value)));
+  return challenge.answer.includes(normalize($('#answer-input').value));
+}
+
+function checkAnswer() {
+  const challenge = challenges[current];
+  if (isCorrect(challenge)) {
+    $('#feedback').textContent = 'Correct. The library responds to your restoration.';
+    $('#feedback').className = 'feedback correct';
+    $('#check-button').disabled = true;
+    document.querySelectorAll('#question-area input').forEach((input) => input.disabled = true);
+    setTimeout(showReveal, 350);
+    return;
+  }
+  attempts += 1;
+  $('#feedback').textContent = attempts === 1 ? 'That is not quite the lost entry. Check each step and try again.' : 'Still not the right restoration. The Archivist can now offer a hint.';
+  $('#feedback').className = 'feedback incorrect';
+  if (attempts >= 2) $('#hint-button').disabled = false;
+}
+
+function showReveal() {
+  const challenge = challenges[current];
+  if (current === challenges.length - 1) {
+    showComplete();
+    return;
+  }
+  $('#reveal-title').textContent = `${challenge.name} restored.`;
+  $('#reveal-text').textContent = challenge.reveal;
+  $('#next-button').textContent = `${challenge.next} →`;
+  $('#reveal-card').classList.remove('hidden');
+  $('#reveal-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function showComplete() {
+  $('#game-screen').classList.add('hidden');
+  $('#complete-screen').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+$('#start-button').addEventListener('click', () => {
+  challenges = createChallenges();
+  $('#welcome-screen').classList.add('hidden');
+  $('#game-screen').classList.remove('hidden');
+  renderChallenge();
 });
 
-$('#debug-button').addEventListener('click', () => { const set = sets[state.setIndex]; $('#debug-set').textContent = set.name; $('#debug-facts').innerHTML = set.facts.slice(0, 4).map(fact => `<li>${fact.replace('×', ' × ')}</li>`).join(''); $('#debug-dialog').showModal(); });
-$('#close-debug').addEventListener('click', () => $('#debug-dialog').close());
-function completeRound() {
-  const id = `${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${Math.floor(100 + Math.random() * 900)}`;
-  const questionCount = Math.min(state.position, state.round.length) || state.round.length;
-  const summary = `Session ID: ${id}, Name: ${state.name}, Set: ${sets[state.setIndex].name}, Questions: ${questionCount}`;
-  $('#complete-message').textContent = endings[Math.floor(Math.random() * endings.length)]; $('#session-summary').textContent = summary; $('#progress-fill').style.width = '100%'; showScreen('#complete-screen');
-}
-$('#copy-button').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('#session-summary').textContent); $('#copy-button').textContent = 'Copied!'; setTimeout(() => $('#copy-button').textContent = 'Copy summary', 1500); } catch { $('#copy-button').textContent = 'Select and copy the line'; } });
-$('#new-round-button').addEventListener('click', () => { $('#student-name').value = ''; showScreen('#welcome-screen'); $('#student-name').focus(); });
+$('#check-button').addEventListener('click', checkAnswer);
+$('#hint-button').addEventListener('click', () => $('#hint-box').classList.remove('hidden'));
+$('#next-button').addEventListener('click', () => { current += 1; renderChallenge(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+$('#restart-button').addEventListener('click', () => { current = 0; $('#complete-screen').classList.add('hidden'); $('#welcome-screen').classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' }); });
